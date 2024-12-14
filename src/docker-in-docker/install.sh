@@ -15,12 +15,14 @@ DOCKER_DASH_COMPOSE_VERSION="${DOCKERDASHCOMPOSEVERSION:-"latest"}" #latest, v2 
 AZURE_DNS_AUTO_DETECTION="${AZUREDNSAUTODETECTION:-"true"}"
 DOCKER_DEFAULT_ADDRESS_POOL="${DOCKERDEFAULTADDRESSPOOL:-""}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
+HOME="${HOME:-"${_REMOTE_USER_HOME:-"automatic"}"}"
 INSTALL_DOCKER_BUILDX="${INSTALLDOCKERBUILDX:-"true"}"
 INSTALL_DOCKER_COMPOSE_SWITCH="${INSTALLDOCKERCOMPOSESWITCH:-"true"}"
 MICROSOFT_GPG_KEYS_URI="https://packages.microsoft.com/keys/microsoft.asc"
 DOCKER_MOBY_ARCHIVE_VERSION_CODENAMES="bookworm buster bullseye bionic focal jammy noble"
 DOCKER_LICENSED_ARCHIVE_VERSION_CODENAMES="bookworm buster bullseye bionic focal hirsute impish jammy noble"
 DISABLE_IP6_TABLES="${DISABLEIP6TABLES:-false}"
+DEAMON_CONFIG="${DEAMONCONFIG:-""}"
 
 # Default: Exit on any failure.
 set -e
@@ -50,14 +52,17 @@ if [ "${USERNAME}" = "auto" ] || [ "${USERNAME}" = "automatic" ]; then
     for CURRENT_USER in "${POSSIBLE_USERS[@]}"; do
         if id -u ${CURRENT_USER} > /dev/null 2>&1; then
             USERNAME=${CURRENT_USER}
+            HOME="/home/${USERNAME}"
             break
         fi
     done
     if [ "${USERNAME}" = "" ]; then
         USERNAME=root
+        HOME="/root"
     fi
 elif [ "${USERNAME}" = "none" ] || ! id -u ${USERNAME} > /dev/null 2>&1; then
     USERNAME=root
+    HOME="/root"
 fi
 
 apt_get_update()
@@ -221,7 +226,15 @@ if type iptables-legacy > /dev/null 2>&1; then
     update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 fi
 
-
+# Copy deamon config file
+if [ -n "${DEAMON_CONFIG}" ]
+then
+    if [ ! -d "$HOME/.config/docker/" ]
+    then
+        mkdir -p "$HOME/.config/docker"
+    fi
+    echo $DEAMON_CONFIG > $HOME/.config/docker/deamon.json
+fi
 
 # Set up the necessary apt repos (either Microsoft's or Docker's)
 if [ "${USE_MOBY}" = "true" ]; then

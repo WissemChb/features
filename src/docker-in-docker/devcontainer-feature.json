@@ -60,6 +60,11 @@
             "type": "boolean",
             "default": false,
             "description": "Disable ip6tables (this option is only applicable for Docker versions 27 and greater)"
+        },
+        "deamonConfig": {
+            "type": "string",
+            "default": "",
+            "description": "The docker deamon config file. Used to override the daemon default configuration. It should be a json string format"
         }
     },
     "entrypoint": "/usr/local/share/docker-init.sh",

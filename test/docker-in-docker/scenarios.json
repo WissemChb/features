@@ -142,6 +142,14 @@
             }
         }
     },
+    "docker_specific_deamon_config": {
+        "image": "ubuntu:focal",
+        "features": {
+            "docker-in-docker": {
+                "deamonConfig": "{\"insecure-registries\": [\"http://x.x.x.x:2000\"]}"
+            }
+        }
+    },
     // DO NOT REMOVE: This scenario is used by the docker-in-docker-stress-test workflow
     "docker_with_on_create_command": {
         "image": "mcr.microsoft.com/devcontainers/base:debian",
